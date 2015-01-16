@@ -3,21 +3,9 @@ ROMAN_HASH = {I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000}
 public
 
 def to_roman
-  n = self
-  digit_array = n.to_s.split('').map { |digit| digit.to_i }.reverse
-  the_roman = ""
-  digit_array.map.each_with_index do |digit, index|
-    digit.digitize(1 * 10 ** index, 5 * 10 ** index, 10 * 10 ** index) 
-  end
-  if n < 100
-    tens, ones = n.divmod(10)
-    if tens == 0
-      the_roman += ones.digitize(1, 5, 10)
-    else
-      the_roman += tens.digitize(10, 50, 100)
-      the_roman += ones.digitize(1, 5, 10)
-    end
-  end
+  digit_array = self.to_s.split('').map { |digit| digit.to_i }.reverse
+  romanizing_block = Proc.new {|digit, index| digit.digitize(1 * 10 ** index, 5 * 10 ** index, 10 * 10 ** index)} 
+  digit_array.map.each_with_index(&romanizing_block).reverse.join
 end
 
 def digitize(one, five, ten)
@@ -34,16 +22,15 @@ def digitize(one, five, ten)
 end
 
 def single_make(single_type)
-  n = self
-  ROMAN_HASH.key(single_type).to_s * n
+  ROMAN_HASH.key(single_type).to_s * self
 end
 
 def surround_x(x, surrounder)
-  n = self
-  diff = n - x
-  if diff == -1
+  diff = self * surrounder - x
+  diff_digits = diff.to_s.split('').map {|d| d.to_i}
+  if diff < 0
     1.single_make(surrounder) + 1.single_make(x)
   else 
-    1.single_make(x) + diff.single_make(surrounder)
+    1.single_make(x) + diff_digits[0].single_make(surrounder)
   end
 end
