@@ -8,15 +8,15 @@ class Phrase
 
   def word_count
     unless @already_counted
-      @string_array.each {|word| @word_count_hash[word] += 1 } 
+      @string_array.each {|word| @word_count_hash[word.downcase] += 1 } 
       @already_counted = true
     end
     @word_count_hash
   end
   
   def dividers?(string)
-    if string[/\n/]
-      string.delete("\n").split(",")
+    if string[/,[\n\ ]/]
+      string.delete(",").split("\s")
     elsif string[/,/]
       string.split(",")
     else
@@ -26,7 +26,7 @@ class Phrase
 
   def word_clean(string)
     clean_array = string.split(" ").map do |word|
-      punctuation = word[/\W+/]
+      punctuation = word[/[!&@$%^&:.]+/]
       if punctuation 
         word.delete(punctuation)
       else
